@@ -23,9 +23,19 @@ RUN a2enmod headers rewrite ssl
 # PHP extensions
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 RUN docker-php-ext-install imap pdo_mysql sockets intl zip gd xml soap mbstring exif
+
+# imagick (proto)
+ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
+RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
+    install-php-extensions imagick
+
 RUN pecl install xdebug-2.8.0
 RUN docker-php-ext-enable xdebug
-RUN echo "xdebug.remote_enable=1" >> /usr/local/etc/php/php.ini
 
+# Very basic php.ini definitions
+RUN (echo 'xdebug.remote_enable=1'; \
+    echo 'error_log="/tmp/php_error_log"'; \
+    echo 'max_input_vars=3000') \
+        >> /usr/local/etc/php/php.ini
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
