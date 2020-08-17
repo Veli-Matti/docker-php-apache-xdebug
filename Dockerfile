@@ -1,13 +1,18 @@
 FROM php:7.2-apache
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update
-RUN apt-get install -y git mariadb-client unzip
-RUN apt-get install -y libicu-dev
-RUN apt-get install -y libzip-dev
-RUN apt-get install -y libpng-dev
-RUN apt-get install -y libxml2-dev
-RUN apt-get install -y libonig-dev
-RUN apt-get install -y libc-client-dev libkrb5-dev
+    RUN apt-get update && apt-get install -y \
+        git  \
+        mariadb-client  \
+        unzip \
+        poppler-utils \
+        libicu-dev \
+        libzip-dev \
+        libpng-dev \
+        libxml2-dev \
+        libonig-dev \
+        libc-client-dev \
+        libkrb5-dev \
+    && apt-get -y clean && apt-get -y autoremove --purge
 
 # Install nvm and node v12
 SHELL ["/bin/bash", "--login", "-c"]
@@ -39,3 +44,7 @@ RUN (echo 'xdebug.remote_enable=1'; \
         >> /usr/local/etc/php/php.ini
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Allow pdf conversations
+RUN cat /etc/ImageMagick-6/policy.xml | grep -v -E "coder.*PDF" > policy.xml && \
+        mv policy.xml /etc/ImageMagick-6/policy.xml
